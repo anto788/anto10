@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            width: 500px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2, h3 {
+            margin-bottom: 20px;
+        }
+
+        .btn-container {
+            margin-top: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            background-color: #e7e7e7;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #d4d4d4;
+        }
+
+        .correct {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .wrong {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #start-btn, #next-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-btn:hover, #next-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+    <title>Coding Quiz App</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-container">
+            <h2>Welcome to the Coding Quiz!</h2>
+            <p>Test your coding knowledge with 5 programming-related questions.</p>
+            <button id="start-btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Container (Hidden initially) -->
+        <div id="quiz-container" class="hide">
+            <div id="question-container">
+                <h3 id="question">Question will appear here</h3>
+                <div id="answer-buttons" class="btn-container"></div>
+            </div>
+            <button id="next-btn" onclick="nextQuestion()">Next</button>
+            <div id="result" class="hide"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What does the 'typeof' operator return in JavaScript when used on an array?",
+                answers: [
+                    { text: "'array'", correct: false },
+                    { text: "'object'", correct: true },
+                    { text: "'undefined'", correct: false },
+                    { text: "'string'", correct: false }
+                ]
+            },
+            {
+                question: "Which of the following is used to connect to a database in PHP?",
+                answers: [
+                    { text: "mysqli_connect()", correct: true },
+                    { text: "db_connect()", correct: false },
+                    { text: "connect_db()", correct: false },
+                    { text: "db_connect_php()", correct: false }
+                ]
+            },
+            {
+                question: "In Python, what keyword is used to define a function?",
+                answers: [
+                    { text: "func", correct: false },
+                    { text: "define", correct: false },
+                    { text: "def", correct: true },
+                    { text: "function", correct: false }
+                ]
+            },
+            {
+                question: "Which of the following is a correct way to declare a variable in Java?",
+                answers: [
+                    { text: "int x = 5;", correct: true },
+                    { text: "var x = 5;", correct: false },
+                    { text: "x int = 5;", correct: false },
+                    { text: "integer x = 5;", correct: false }
+                ]
+            },
+            {
+                question: "What does CSS stand for?",
+                answers: [
+                    { text: "Creative Style Sheets", correct: false },
+                    { text: "Cascading Style Sheets", correct: true },
+                    { text: "Computer Style Sheets", correct: false },
+                    { text: "Colorful Style Sheets", correct: false }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const welcomeContainer = document.getElementById("welcome-container");
+        const quizContainer = document.getElementById("quiz-container");
+        const questionElement = document.getElementById("question");
+        const answerButtonsElement = document.getElementById("answer-buttons");
+        const nextButton = document.getElementById("next-btn");
+        const resultElement = document.getElementById("result");
+
+        // Start the quiz
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            welcomeContainer.classList.add("hide");
+            quizContainer.classList.remove("hide");
+            showQuestion();
+        }
+
+        // Show current question
+        function showQuestion() {
+            resetState();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.innerText = currentQuestion.question;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerText = answer.text;
+                button.classList.add("btn");
+                button.addEventListener("click", () => selectAnswer(answer));
+                answerButtonsElement.appendChild(button);
+            });
+        }
+
+        // Reset state before showing next question
+        function resetState() {
+            nextButton.style.display = "none";
+            resultElement.classList.add("hide");
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+        }
+
+        // Handle answer selection
+        function selectAnswer(answer) {
+            const correct = answer.correct;
+            if (correct) {
+                event.target.classList.add("correct");
+                score++;
+            } else {
+                event.target.classList.add("wrong");
+            }
+
+            Array.from(answerButtonsElement.children).forEach(button => {
+                if (button.innerText === questions[currentQuestionIndex].answers.find(a => a.correct).text) {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+
+            nextButton.style.display = "block";
+        }
+
+        // Show the next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // Show the final result
+        function showResult() {
+            resetState();
+            resultElement.classList.remove("hide");
+            resultElement.innerText = `You scored ${score} out of ${questions.length}! 🎉`;
+            nextButton.style.display = "none";
+        }
+    </script>
+</body>
+</html>
